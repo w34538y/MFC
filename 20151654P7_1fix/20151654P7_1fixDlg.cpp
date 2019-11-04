@@ -51,6 +51,11 @@ END_MESSAGE_MAP()
 
 CMy20151654P7_1fixDlg::CMy20151654P7_1fixDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_MY20151654P7_1FIX_DIALOG, pParent)
+	, m_strDept(_T(""))
+	, m_strID(_T(""))
+	, m_strName(_T(""))
+	, m_strSeletecItem(_T(""))
+	, m_nSelectedItem(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -58,12 +63,23 @@ CMy20151654P7_1fixDlg::CMy20151654P7_1fixDlg(CWnd* pParent /*=NULL*/)
 void CMy20151654P7_1fixDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_LIST_STUDENT, m_listStudent);
+	DDX_Text(pDX, IDC_EDIT_DEPT, m_strDept);
+	DDX_Text(pDX, IDC_EDIT_ID, m_strID);
+	DDX_Text(pDX, IDC_EDIT_NAME, m_strName);
+	DDX_Text(pDX, IDC_EDIT_SELECTED_ITEM, m_strSeletecItem);
 }
 
 BEGIN_MESSAGE_MAP(CMy20151654P7_1fixDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON_INSERT, &CMy20151654P7_1fixDlg::OnClickedButtonInsert)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_STUDENT, &CMy20151654P7_1fixDlg::OnItemchangedListStudent)
+	ON_BN_CLICKED(IDC_BUTTON_MODIFY, &CMy20151654P7_1fixDlg::OnClickedButtonModify)
+	ON_BN_CLICKED(IDC_BUTTON_DELETE, &CMy20151654P7_1fixDlg::OnClickedButtonDelete)
+	ON_BN_CLICKED(IDC_BUTTON_RESET, &CMy20151654P7_1fixDlg::OnClickedButtonReset)
+	ON_CBN_SELCHANGE(IDC_COMBO_STYLE, &CMy20151654P7_1fixDlg::OnSelchangeComboStyle)
 END_MESSAGE_MAP()
 
 
@@ -99,6 +115,18 @@ BOOL CMy20151654P7_1fixDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
+	LPWSTR list[4] = { _T("순번"), _T("학과"), _T("학번"), _T("이름") };
+	int nWidth[4] = { 50, 60, 120, 120 };
+
+	for (int i = 0; i < 4; i++) {
+		m_listStudent.InsertColumn(i, list[i], LVCFMT_CENTER, nWidth[i]);
+	}
+	m_listStudent.SetExtendedStyle(m_listStudent.GetExtendedStyle() | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+	((CComboBox*)GetDlgItem(IDC_COMBO_STYLE))->SetCurSel(0);
+
+	((CButton*)GetDlgItem(IDC_BUTTON_MODIFY))->EnableWindow(FALSE);
+	((CButton*)GetDlgItem(IDC_BUTTON_DELETE))->EnableWindow(FALSE);
+
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -152,3 +180,156 @@ HCURSOR CMy20151654P7_1fixDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMy20151654P7_1fixDlg::OnClickedButtonInsert()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int nCount = m_listStudent.GetItemCount();
+	CString strCount;
+
+	UpdateData(TRUE);
+	if (!m_strDept.IsEmpty() && !m_strID.IsEmpty() && !m_strName.IsEmpty()) {
+		strCount.Format(_T("%d"), nCount + 1);
+		m_listStudent.InsertItem(nCount, strCount);
+		m_listStudent.SetItem(nCount, 1, LVIF_TEXT, m_strDept, 0, 0, 0, 0);
+		m_listStudent.SetItem(nCount, 2, LVIF_TEXT, m_strID, 0, 0, 0, 0);
+		m_listStudent.SetItem(nCount, 3, LVIF_TEXT, m_strName, 0, 0, 0, 0);
+
+		m_strDept.Empty();
+		m_strID.Empty();
+		m_strName.Empty();
+
+
+		((CButton*)GetDlgItem(IDC_BUTTON_MODIFY))->EnableWindow(FALSE);
+		((CButton*)GetDlgItem(IDC_BUTTON_DELETE))->EnableWindow(FALSE);
+
+		UpdateData(TRUE);
+	}
+	else {
+		MessageBox(_T("모든 항목을 입력해 주세요."), _T("잠깐"), MB_OK);
+	}
+}
+
+
+void CMy20151654P7_1fixDlg::OnItemchangedListStudent(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_nSelectedItem = pNMLV->iItem;
+
+	m_strSeletecItem.Format(_T("%d"), m_nSelectedItem + 1);
+	m_strDept = m_listStudent.GetItemText(m_nSelectedItem, 1);
+	m_strID = m_listStudent.GetItemText(m_nSelectedItem, 2);
+	m_strName = m_listStudent.GetItemText(m_nSelectedItem, 3);
+
+	((CButton*)GetDlgItem(IDC_BUTTON_MODIFY))->EnableWindow(TRUE);
+	((CButton*)GetDlgItem(IDC_BUTTON_DELETE))->EnableWindow(TRUE);
+
+	UpdateData(FALSE);
+	*pResult = 0;
+}
+
+
+void CMy20151654P7_1fixDlg::OnClickedButtonModify()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	UpdateData(TRUE);
+	CString strDept, strID, strName, strIndex;
+	strDept = m_strDept;
+	strID = m_strID;
+
+	strName = m_strName;
+
+	if (m_nSelectedItem >= 0) {
+		if (!m_strDept.IsEmpty() && !m_strID.IsEmpty() && !m_strName.IsEmpty()) {
+			strIndex.Format(_T("%d"), m_nSelectedItem + 1);
+			m_listStudent.SetItem(m_nSelectedItem, 0, LVIF_TEXT, strIndex, 0, 0, 0, 0);
+			m_listStudent.SetItem(m_nSelectedItem, 1, LVIF_TEXT, strDept, 0, 0, 0, 0);
+			m_listStudent.SetItem(m_nSelectedItem, 2, LVIF_TEXT, strID, 0, 0, 0, 0);
+			m_listStudent.SetItem(m_nSelectedItem, 3, LVIF_TEXT, strName, 0, 0, 0, 0);
+
+			m_strDept.Empty();
+			m_strID.Empty();
+			m_strName.Empty();
+
+
+			((CButton*)GetDlgItem(IDC_BUTTON_MODIFY))->EnableWindow(FALSE);
+			((CButton*)GetDlgItem(IDC_BUTTON_DELETE))->EnableWindow(FALSE);
+
+			UpdateData(FALSE);
+		}
+		else {
+			MessageBox(_T("모든 항목을 입력해 주세요."), _T("잠깐"), MB_OK);
+		}
+	}
+	else {
+		MessageBox(_T("아이템을 선택하지 않았습니다."), _T("잠깐"), MB_OK);
+	}
+
+}
+
+
+void CMy20151654P7_1fixDlg::OnClickedButtonDelete()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (m_nSelectedItem >= 0) {
+		m_listStudent.DeleteItem(m_nSelectedItem);
+
+		for (int i = m_nSelectedItem - 1; i < m_listStudent.GetItemCount(); i++) {
+			CString strIndex;
+			strIndex.Format(_T("%d"), i + 1);
+			m_listStudent.SetItemText(i, 0, strIndex);
+		}
+		m_strDept.Empty();
+		m_strID.Empty();
+		m_strName.Empty();
+
+		((CButton*)GetDlgItem(IDC_BUTTON_MODIFY))->EnableWindow(FALSE);
+		((CButton*)GetDlgItem(IDC_BUTTON_DELETE))->EnableWindow(FALSE);
+
+		UpdateData(FALSE);
+	}
+	else {
+		MessageBox(_T("아이템을 선택하지 않았습니다."), _T("잠깐"), MB_OK);
+	}
+
+}
+
+
+void CMy20151654P7_1fixDlg::OnClickedButtonReset()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_strDept.Empty();
+	m_strID.Empty();
+	m_strName.Empty();
+
+	UpdateData(FALSE);
+}
+
+
+void CMy20151654P7_1fixDlg::OnSelchangeComboStyle()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int numSel = ((CComboBox*)GetDlgItem(IDC_COMBO_STYLE))->GetCurSel();
+	long setStyle;
+
+	setStyle = GetWindowLong(m_listStudent.m_hWnd, GWL_STYLE);
+	setStyle &= LVS_TYPEMASK;
+
+	switch (numSel) {
+	case 0:
+		setStyle |= LVS_REPORT;
+		break;
+	case 1:
+		setStyle |= LVS_LIST;
+		break;
+	case 2:
+		setStyle |= LVS_SMALLICON;
+		break;
+	case 3:
+		setStyle |= LVS_ICON;
+		break;
+	}
+	SetWindowLong(m_listStudent.m_hWnd, GWL_STYLE, setStyle);
+}
