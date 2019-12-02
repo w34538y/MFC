@@ -27,6 +27,8 @@ public:
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 지원입니다.
 
+	void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar * pScrollBar);
+
 // 구현입니다.
 protected:
 	DECLARE_MESSAGE_MAP()
@@ -111,6 +113,7 @@ BOOL CMy20151654P8_1Dlg::OnInitDialog()
 	m_tabSelection.DeleteAllItems();
 	m_tabSelection.InsertItem(0, _T("도형 선택"));
 	m_tabSelection.InsertItem(1, _T("색상 선택"));
+	m_tabSelection.InsertItem(2, _T("비율 지정"));
 
 	CRect rect;
 	m_dlgObject.Create(IDD_DIALOG_OBJECT, &m_tabSelection);
@@ -122,6 +125,12 @@ BOOL CMy20151654P8_1Dlg::OnInitDialog()
 	m_dlgColor.GetWindowRect(&rect);
 	m_dlgColor.MoveWindow(5, 25, rect.Width(), rect.Height());
 	m_dlgColor.ShowWindow(SW_HIDE);
+
+	m_dlgRatio.Create(IDD_DIALOG_RATIO, &m_tabSelection);
+	m_dlgRatio.GetWindowRect(&rect);
+	m_dlgRatio.MoveWindow(5, 25, rect.Width(), rect.Height());
+	m_dlgRatio.ShowWindow(SW_HIDE);
+
 	UpdateData(FALSE);
 
 
@@ -226,11 +235,18 @@ void CMy20151654P8_1Dlg::OnSelchangeTabSelection(NMHDR *pNMHDR, LRESULT *pResult
 	case 0:
 		m_dlgObject.ShowWindow(SW_SHOW);
 		m_dlgColor.ShowWindow(SW_HIDE);
+		m_dlgRatio.ShowWindow(SW_HIDE);
 		break;
 
 	case 1:
 		m_dlgObject.ShowWindow(SW_HIDE);
 		m_dlgColor.ShowWindow(SW_SHOW);
+		m_dlgRatio.ShowWindow(SW_HIDE);
+		break;
+	case 2:
+		m_dlgObject.ShowWindow(SW_HIDE);
+		m_dlgColor.ShowWindow(SW_HIDE);
+		m_dlgRatio.ShowWindow(SW_SHOW);
 		break;
 	}
 	*pResult = 0;
@@ -244,4 +260,11 @@ void CMy20151654P8_1Dlg::OnDeltaposSpinSize(NMHDR *pNMHDR, LRESULT *pResult)
 	UpdateData(TRUE);
 	UpdateDrawing();
 	*pResult = 0;
+}
+
+void CAboutDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);
 }

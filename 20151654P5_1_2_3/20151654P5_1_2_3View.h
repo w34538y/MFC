@@ -2,7 +2,7 @@
 // 20151654P5_1_2_3View.h : CMy20151654P5_1_2_3View 클래스의 인터페이스
 //
 #include "atltypes.h"
-enum DRAW_MODE { LINE_MODE, ELLIPSE_MODE, POLYGON_MODE };
+enum DRAW_MODE { LINE_MODE, ELLIPSE_MODE, POLYGON_MODE, BEZIER_MODE };
 #pragma once
 
 
@@ -73,6 +73,9 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnBezier();
+//	afx_msg void OnUpdateBdiagonal(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBezier(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // 20151654P5_1_2_3View.cpp의 디버그 버전

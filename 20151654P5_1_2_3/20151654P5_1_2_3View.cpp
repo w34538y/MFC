@@ -45,6 +45,9 @@ BEGIN_MESSAGE_MAP(CMy20151654P5_1_2_3View, CView)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
 	ON_WM_RBUTTONDOWN()
+	ON_COMMAND(ID_BEZIER, &CMy20151654P5_1_2_3View::OnBezier)
+//	ON_UPDATE_COMMAND_UI(ID_BDIAGONAL, &CMy20151654P5_1_2_3View::OnUpdateBdiagonal)
+ON_UPDATE_COMMAND_UI(ID_BEZIER, &CMy20151654P5_1_2_3View::OnUpdateBezier)
 END_MESSAGE_MAP()
 
 // CMy20151654P5_1_2_3View 생성/소멸
@@ -98,7 +101,7 @@ void CMy20151654P5_1_2_3View::OnDraw(CDC* pDC)
 		return;
 
 	// TODO: 여기에 원시 데이터에 대한 그리기 코드를 추가합니다.
-	CPen pen, *oldpen;
+	CPen pen, *oldpen, rpen;
 	pen.CreatePen(PS_SOLID, 1, m_colorPen);
 	oldpen = pDC->SelectObject(&pen);
 	pDC->SetROP2(R2_COPYPEN);
@@ -119,6 +122,19 @@ void CMy20151654P5_1_2_3View::OnDraw(CDC* pDC)
 		break;
 	case POLYGON_MODE:
 		pDC->Polygon(m_ptData, m_nCount);
+		break;
+	case BEZIER_MODE:
+		pDC->Polyline(m_ptData, m_nCount);
+		for (int i = 0; i < m_nCount; i++) {
+			pDC->SelectStockObject(NULL_PEN);
+			pDC->SelectStockObject(GRAY_BRUSH);
+			pDC->Ellipse(m_ptData[i].x + 5, m_ptData[i].y + 5, m_ptData[i].x - 3, m_ptData[i].y - 3);
+			pDC->SelectStockObject(BLACK_PEN);
+		}
+		pDC->SelectObject(&rpen);
+		pDC->PolyBezier(m_ptData, m_nCount);
+		pDC->SelectObject(oldpen);
+		rpen.DeleteObject();
 		break;
 	}
 	pDC->SelectObject(oldpen);
@@ -346,7 +362,22 @@ void CMy20151654P5_1_2_3View::OnMouseMove(UINT nFlags, CPoint point)
 			m_ptPrev = point;
 		}
 		break;
-
+	case BEZIER_MODE:
+		if (!m_bFirst) {
+			for (int i = 0; i < m_nCount; i++) {
+				dc.SelectStockObject(NULL_PEN);
+				dc.SelectStockObject(GRAY_BRUSH);
+				dc.Polyline(m_ptData, m_nCount);
+				dc.Ellipse(m_ptData[i].x + 5, m_ptData[i].y + 5, m_ptData[i].x - 3, m_ptData[i].y - 3);
+				dc.SelectStockObject(BLACK_PEN);
+			}
+			dc.MoveTo(m_ptStart);
+			dc.LineTo(m_ptPrev);
+			dc.MoveTo(m_ptStart);
+			dc.LineTo(point);
+			m_ptPrev = point;
+		}
+		break;
 	}
 	dc.SelectObject(oldpen);
 	dc.SelectObject(oldbrush);
@@ -398,6 +429,14 @@ void CMy20151654P5_1_2_3View::OnLButtonDown(UINT nFlags, CPoint point)
 		m_ptData[m_nCount] = point;
 		m_nCount++;
 		break;
+	case BEZIER_MODE:
+		if (m_bFirst == true)
+			m_bFirst = false;
+		m_ptStart = m_ptPrev = point;
+		m_ptData[m_nCount] = point;
+		m_ptStart = m_ptData[m_nCount];
+		m_nCount++;
+		break;
 	}
 
 	RECT rectClient;
@@ -434,12 +473,50 @@ void CMy20151654P5_1_2_3View::OnRButtonDown(UINT nFlags, CPoint point)
 			m_bContextMenu = FALSE;
 			m_ptData[m_nCount] = point;
 			m_nCount++;
-			m_bFirst = true;
+			m_bFirst = TRUE;
 			ReleaseCapture();
 			::ClipCursor(NULL);
 			Invalidate(TRUE);
 		}
 	}
-
+	if (m_nDrawMode == BEZIER_MODE) {
+		if (!m_bFirst) {
+			m_bContextMenu = FALSE;
+			m_ptStart = point;
+			m_ptData[m_nCount] = point;
+			if (m_nCount % 3 == 0) {
+				m_bFirst = TRUE;
+				Invalidate();
+				ReleaseCapture();
+				::ClipCursor(NULL);
+			}
+			else {
+				AfxMessageBox(_T("점의 수 오류 <점의수 = 베이지 곡선수*3+1>"), MB_ICONWARNING);
+			}
+			m_nCount++;
+		}
+	}
 	CView::OnRButtonDown(nFlags, point);
+}
+
+
+void CMy20151654P5_1_2_3View::OnBezier()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	m_nDrawMode = BEZIER_MODE;
+	CMainFrame *pFrame = (CMainFrame *)AfxGetMainWnd();
+	pFrame->m_wndStatusBar.SetWindowText(_T("베지어 곡선"));
+}
+
+
+//void CMy20151654P5_1_2_3View::OnUpdateBdiagonal(CCmdUI *pCmdUI)
+//{
+//	// TODO: 여기에 명령 업데이트 UI 처리기 코드를 추가합니다.
+//}
+
+
+void CMy20151654P5_1_2_3View::OnUpdateBezier(CCmdUI *pCmdUI)
+{
+	// TODO: 여기에 명령 업데이트 UI 처리기 코드를 추가합니다.
+	pCmdUI->SetCheck(m_nDrawMode == BEZIER_MODE ? 1 : 0);
 }

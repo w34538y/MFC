@@ -51,13 +51,17 @@
 #define ID_FACE_COLOR                   32794
 #define ID_32795                        32795
 #define ID_32796                        32796
+#define ID_32805                        32805
+#define ID_BEZIER                       32806
+#define ID_32807                        32807
+#define ID_BUTTON32813                  32813
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        310
-#define _APS_NEXT_COMMAND_VALUE         32805
+#define _APS_NEXT_COMMAND_VALUE         32814
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           311
 #endif

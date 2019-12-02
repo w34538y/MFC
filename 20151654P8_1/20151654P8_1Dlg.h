@@ -6,6 +6,7 @@
 #include "afxcmn.h"
 #include "ObjectDlg.h"
 #include "ColorDlg.h"
+#include "RatioDlg.h"
 
 
 // CMy20151654P8_1Dlg 대화 상자
@@ -43,4 +44,5 @@ public:
 	void UpdateDrawing();
 	afx_msg void OnSelchangeTabSelection(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnDeltaposSpinSize(NMHDR *pNMHDR, LRESULT *pResult);
+	CRatioDlg m_dlgRatio;
 };

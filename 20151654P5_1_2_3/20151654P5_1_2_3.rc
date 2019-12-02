@@ -116,6 +116,7 @@ BEGIN
     BUTTON      ID_LINE
     BUTTON      ID_ELLIPSE
     BUTTON      ID_POLYGON
+    BUTTON      ID_BEZIER
     SEPARATOR
     BUTTON      ID_LINE_COLOR
     BUTTON      ID_FACE_COLOR
@@ -173,6 +174,7 @@ BEGIN
         MENUITEM "직선(&L) \tCtrl+L",             ID_LINE
         MENUITEM "원(&E) \tCtrl+E",              ID_ELLIPSE
         MENUITEM "다각형(&G) \tCtrl+G",            ID_POLYGON
+        MENUITEM "베지어 곡선(&B) \tCtrl+B",         ID_BEZIER
     END
     POPUP "색상(&C)"
     BEGIN
@@ -199,6 +201,7 @@ BEGIN
         MENUITEM "직선(&L) \tCtrl+L",             ID_LINE
         MENUITEM "원(&E) \tCtrl+E",              ID_ELLIPSE
         MENUITEM "다각형(&G) \tCtrl+G",            ID_POLYGON
+        MENUITEM "베지어 곡선(&B) \tCtrl+B",         ID_BEZIER
     END
 END
 
@@ -470,6 +473,11 @@ BEGIN
     ID_BDIAGONAL            "무늬를 변경합니다. \n왼쪽 45도"
     ID_CROSS                "무늬를 변경합니다. \n십자가"
     ID_VERTICAL             "무늬를 변경합니다. \n수직"
+END
+
+STRINGTABLE
+BEGIN
+    ID_BEZIER               "베지어 곡선을 그립니다. \n베지어 곡선"
 END
 
 #endif    // 한국어(대한민국) resources
